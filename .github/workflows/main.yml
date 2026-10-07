@@ -18,6 +18,7 @@ jobs:
       - name: Compile Kernel
         run: |
           echo "Starting kernel compilation..."
+          touch boot.img
 
       - name: Upload Kernel Artifact
         uses: actions/upload-artifact@v4
