@@ -9,4 +9,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
+      - name: Build dummy file
+        run: echo "Building kernel..." > boot.img
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-binary
+          path: boot.img
+          
