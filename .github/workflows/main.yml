@@ -7,15 +7,24 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Build dummy file
-        run: echo "Building kernel..." > boot.img
+      - name: Set up Build Environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential bc bison flex libssl-dev libelf-dev libncurses5-dev git
 
-      - name: Upload artifact
+      - name: Compile Kernel
+        run: |
+          echo "Starting kernel compilation..."
+          # make defconfig
+          # make -j$(nproc)
+
+      - name: Upload Kernel Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: kernel-binary
-          path: boot.img
-          
+          name: kernel-build
+          path: |
+            out/arch/arm64/boot/Image.gz-dtb
+            
