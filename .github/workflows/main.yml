@@ -18,15 +18,6 @@ jobs:
       - name: Compile Kernel
         run: |
           echo "Starting kernel compilation..."
-          export ARCH=arm64
-          export CROSS_COMPILE=aarch64-linux-gnu-
-          make O=out msm_ruan_defconfig
-          make -j$(nproc) O=out
-
-      - name: Upload Kernel Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: kernel-build
-          path: out/arch/arm64/boot/Image.gz
-
+          export BUILD_CONFIG=build.config.msm.ruan
+          build/build.sh
           
