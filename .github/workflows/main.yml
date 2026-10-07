@@ -1,5 +1,4 @@
 name: Build Kernel
-
 on:
   workflow_dispatch:
 
@@ -18,6 +17,7 @@ jobs:
       - name: Compile Kernel
         run: |
           echo "Starting kernel compilation..."
+          # Lebokne perintah kompilasi sing sejatine ing kene
           touch boot.img
 
       - name: Upload Kernel Artifact
@@ -25,4 +25,3 @@ jobs:
         with:
           name: kernel-build
           path: boot.img
-          
