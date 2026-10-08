@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout Repository
@@ -14,7 +14,7 @@ jobs:
     - name: Set up Build Environment
       run: |
         sudo apt-get update -qq
-        DEBIAN_FRONTEND=noninteractive sudo apt-get install -y build-essential bc libncurses5-dev libssl-dev libelf-dev flex bison bison-doc libglib2.0-dev gcc-aarch64-linux-gnu
+        DEBIAN_FRONTEND=noninteractive sudo apt-get install -y build-essential bc libncurses5-dev libssl-dev libelf-dev flex bison bison-doc libglib2.0-dev gcc-aarch64-linux-gnu gcc-10-aarch64-linux-gnu
 
     - name: Compile Kernel
       run: |
@@ -25,11 +25,10 @@ jobs:
         scripts/config --disable CONFIG_QRTR
         
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
-        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-Wno-error -Wno-unused-variable -Wno-unused-but-set-variable -Wno-format -Wno-format-extra-args" -j$(nproc)
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=aarch64-linux-gnu-gcc-10 WERROR=0 KCFLAGS="-Wno-error -w" -j$(nproc)
 
     - name: Upload Kernel Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Image.gz-dtb
         path: arch/arm64/boot/Image.gz-dtb
-        
