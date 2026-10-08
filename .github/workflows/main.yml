@@ -14,18 +14,17 @@ jobs:
     - name: Set up Build Environment
       run: |
         sudo apt-get update -qq
-        DEBIAN_FRONTEND=noninteractive sudo apt-get install -y build-essential bc libncurses5-dev libssl-dev libelf-dev flex bison libglib2.0-dev gcc-9-aarch64-linux-gnu
+        DEBIAN_FRONTEND=noninteractive sudo apt-get install -y build-essential bc libncurses5-dev libssl-dev libelf-dev flex bison libglib2.0-dev gcc-aarch64-linux-gnu
 
     - name: Compile Kernel
       run: |
-        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-gcc-9 defconfig
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
         
-        # Disable problematic drivers & trace options
+        # Disable problematic sub-systems completely
         scripts/config --disable CONFIG_QRTR
         scripts/config --disable CONFIG_QRTR_TUN
         scripts/config --disable CONFIG_COMMON_CLK_QCOM
-        scripts/config --disable CONFIG_DRM_NOUVEAU
-        scripts/config --disable CONFIG_DRM_MSM
+        scripts/config --disable CONFIG_DRM
         
         # Enable Bluetooth for NetHunter
         scripts/config --enable CONFIG_BT
@@ -34,8 +33,8 @@ jobs:
         scripts/config --enable CONFIG_BT_HIDP
         scripts/config --enable CONFIG_BT_HCIBTUSB
         
-        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-gcc-9 olddefconfig
-        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-gcc-9 WERROR=0 KCFLAGS="-w -fcommon" -j$(nproc) Image.gz-dtb || make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-gcc-9 WERROR=0 KCFLAGS="-w -fcommon" -j$(nproc) Image
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-w -fcommon" -j$(nproc) Image.gz-dtb || make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-w -fcommon" -j$(nproc) Image
 
     - name: Upload Kernel Artifact
       uses: actions/upload-artifact@v4
