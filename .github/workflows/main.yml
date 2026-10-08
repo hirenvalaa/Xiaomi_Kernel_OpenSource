@@ -20,11 +20,13 @@ jobs:
       run: |
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
         
-        # Disable problematic modules and unnecessary graphics drivers
-        scripts/config --disable CONFIG_QRTR_TUN
+        # Disable problematic subsystems and modules
         scripts/config --disable CONFIG_QRTR
+        scripts/config --disable CONFIG_QRTR_TUN
         scripts/config --disable CONFIG_COMMON_CLK_QCOM
         scripts/config --disable CONFIG_DRM_NOUVEAU
+        scripts/config --disable CONFIG_DRM_MSM
+        scripts/config --disable CONFIG_STAGING
         
         # Enable Bluetooth modules for NetHunter
         scripts/config --enable CONFIG_BT
@@ -34,7 +36,8 @@ jobs:
         scripts/config --enable CONFIG_BT_HCIBTUSB
         
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
-        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-Wno-error -w" -j$(nproc)
+        # Ignore all warnings completely during compilation
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-w" CONFIG_DEBUG_SECTION_MISMATCH=y -j$(nproc) Image.gz-dtb || make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-w" -j$(nproc) Image
 
     - name: Upload Kernel Artifact
       uses: actions/upload-artifact@v4
