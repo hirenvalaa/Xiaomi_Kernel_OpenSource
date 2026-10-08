@@ -13,7 +13,7 @@ jobs:
       - name: Set up Build Environment
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential bc bison flex libssl-dev libelf-dev libncurses5-dev git
+          sudo apt-get install -y build-essential bc bison flex libssl-dev libelf-dev libncurses5-dev git gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
 
       - name: Compile Kernel
         run: |
