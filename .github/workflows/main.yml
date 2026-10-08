@@ -18,15 +18,17 @@ jobs:
 
     - name: Hard-Patch Broken Xiaomi Code
       run: |
-        # 1. Fix the void function returning a value (Line 2824)
+        # 1. Fix sdhci-msm.c ICE driver issues
         sed -i 's/return 0;/return;/g' drivers/mmc/host/sdhci-msm.c || true
         sed -i '2824s/.*/return;/' drivers/mmc/host/sdhci-msm.c || true
-        
-        # 2. Comment out the non-existent struct members (Lines 3858-3859)
         sed -i 's/mmio_data.ice_base_mmio = msm_host->ice_mem;/\/\/ bypassed/g' drivers/mmc/host/sdhci-msm.c || true
         sed -i 's/mmio_data.ice_hwkm_mmio = msm_host->ice_hwkm_mem;/\/\/ bypassed/g' drivers/mmc/host/sdhci-msm.c || true
         sed -i '3858s/.*/\/\/ bypassed/' drivers/mmc/host/sdhci-msm.c || true
         sed -i '3859s/.*/\/\/ bypassed/' drivers/mmc/host/sdhci-msm.c || true
+        
+        # 2. Fix the clock debug trace issue
+        sed -i 's/#include "trace.h"/\/\/ #include "trace.h"/g' drivers/clk/qcom/clk-debug.c || true
+        sed -i '18s/.*/\/\/ bypassed/' drivers/clk/qcom/clk-debug.c || true
 
     - name: Compile Kernel
       run: |
