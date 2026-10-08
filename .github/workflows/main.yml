@@ -1,31 +1,8 @@
-name: Build Kernel
-
-on:
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set up Build Environment
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential bc bison flex libssl-dev libelf-dev libncurses5-dev git
-
       - name: Compile Kernel
         run: |
           echo "Starting kernel compilation..."
           export ARCH=arm64
           export CROSS_COMPILE=aarch64-linux-gnu-
-          make O=out vendor/ruan_consolidate_defconfig
+          make O=out arch/arm64/configs/vendor/ruan_consolidate_defconfig
           make -j$(nproc) O=out
-
-      - name: Upload Kernel Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: kernel-build
-          path: out/arch/arm64/boot/Image.gz
           
