@@ -20,11 +20,12 @@ jobs:
       run: |
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
         
-        # Disable problematic sub-systems completely
+        # Disable problematic sub-systems and MMC ICE driver error
         scripts/config --disable CONFIG_QRTR
         scripts/config --disable CONFIG_QRTR_TUN
         scripts/config --disable CONFIG_COMMON_CLK_QCOM
         scripts/config --disable CONFIG_DRM
+        scripts/config --disable CONFIG_MMC_SDHCI_MSM_ICE
         
         # Enable Bluetooth for NetHunter
         scripts/config --enable CONFIG_BT
@@ -41,4 +42,3 @@ jobs:
       with:
         name: Kernel-Image
         path: arch/arm64/boot/
-        
