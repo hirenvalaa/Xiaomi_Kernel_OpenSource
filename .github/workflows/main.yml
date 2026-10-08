@@ -18,7 +18,7 @@ jobs:
 
     - name: Compile Kernel
       run: |
-        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- ruan_consolidate_defconfig
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc)
 
     - name: Upload Kernel Artifact
@@ -26,4 +26,3 @@ jobs:
       with:
         name: Image.gz-dtb
         path: arch/arm64/boot/Image.gz-dtb
-        
