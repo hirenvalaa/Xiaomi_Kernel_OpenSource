@@ -20,12 +20,12 @@ jobs:
       run: |
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
         
-        # Disable problematic QRTR modules
+        # Disable problematic modules
         scripts/config --disable CONFIG_QRTR_TUN
         scripts/config --disable CONFIG_QRTR
         
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
-        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-Wno-error -Wno-format -Wno-format-extra-args" -j1
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-Wno-error -Wno-unused-variable -Wno-unused-but-set-variable -Wno-format -Wno-format-extra-args" -j$(nproc)
 
     - name: Upload Kernel Artifact
       uses: actions/upload-artifact@v4
