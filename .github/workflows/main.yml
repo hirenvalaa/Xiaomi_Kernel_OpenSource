@@ -20,7 +20,7 @@ jobs:
           echo "Starting kernel compilation..."
           export ARCH=arm64
           export CROSS_COMPILE=aarch64-linux-gnu-
-          make O=out ruan_defconfig
+          make O=out vendor/ruan_consolidate_defconfig
           make -j$(nproc) O=out
 
       - name: Upload Kernel Artifact
