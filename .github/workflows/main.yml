@@ -29,9 +29,10 @@ jobs:
             make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- defconfig
         fi
         
-        # Disable problematic clock debug modules
+        # DISABLE PROBLEMATIC MODULES (ICE Storage & Clock Debug)
         scripts/config --disable CONFIG_QCOM_CLK_RPM
         scripts/config --disable CONFIG_COMMON_CLK_QCOM
+        scripts/config --disable CONFIG_MMC_SDHCI_MSM_ICE
         
         # Enable Bluetooth modules for NetHunter
         scripts/config --enable CONFIG_BT
