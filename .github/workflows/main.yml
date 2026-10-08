@@ -1,4 +1,4 @@
-name: Build Kernel for Garnet
+name: Build Kernel for Poco Pad 5G (ruan)
 
 on:
   workflow_dispatch:
@@ -30,11 +30,11 @@ jobs:
       run: |
         export PATH=$(pwd)/clang/bin:$(pwd)/gcc64/bin:$(pwd)/gcc32/bin:$PATH
         
-        # Try device defconfig, fallback to defconfig
-        if [ -f arch/arm64/configs/vendor/garnet_defconfig ]; then
-            make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- vendor/garnet_defconfig
-        elif [ -f arch/arm64/configs/garnet_defconfig ]; then
-            make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- garnet_defconfig
+        # Try ruan defconfig options
+        if [ -f arch/arm64/configs/vendor/ruan_defconfig ]; then
+            make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- vendor/ruan_defconfig
+        elif [ -f arch/arm64/configs/ruan_defconfig ]; then
+            make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- ruan_defconfig
         else
             make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- defconfig
         fi
