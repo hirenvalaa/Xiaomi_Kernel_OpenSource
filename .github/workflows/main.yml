@@ -14,29 +14,22 @@ jobs:
     - name: Set up Build Environment
       run: |
         sudo apt-get update -qq
-        DEBIAN_FRONTEND=noninteractive sudo apt-get install -y build-essential bc libncurses5-dev libssl-dev libelf-dev flex bison libglib2.0-dev git wget
+        DEBIAN_FRONTEND=noninteractive sudo apt-get install -y build-essential bc libncurses5-dev libssl-dev libelf-dev flex bison libglib2.0-dev git wget Clang llvm
 
-    - name: Download Clang & GCC Toolchains
-      run: |
-        mkdir -p clang
-        cd clang
-        wget -q https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r416183b.tar.gz
-        tar -xf clang-r416183b.tar.gz
-        cd ..
-        git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9.git --depth=1 gcc64
-        git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9.git --depth=1 gcc32
+    - name: Set up Clang Toolchain
+      uses: Linuxing3/setup-clang-action@v1
+      with:
+        version: '12.0.1'
 
     - name: Compile Kernel
       run: |
-        export PATH=$(pwd)/clang/bin:$(pwd)/gcc64/bin:$(pwd)/gcc32/bin:$PATH
-        
         # Try ruan defconfig options
         if [ -f arch/arm64/configs/vendor/ruan_defconfig ]; then
-            make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- vendor/ruan_defconfig
+            make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- vendor/ruan_defconfig
         elif [ -f arch/arm64/configs/ruan_defconfig ]; then
-            make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- ruan_defconfig
+            make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- ruan_defconfig
         else
-            make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- defconfig
+            make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- defconfig
         fi
         
         # Enable Bluetooth modules for NetHunter
@@ -46,11 +39,12 @@ jobs:
         scripts/config --enable CONFIG_BT_HIDP
         scripts/config --enable CONFIG_BT_HCIBTUSB
         
-        make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- olddefconfig
-        make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- -j$(nproc)
+        make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
+        make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-w" -j$(nproc) Image.gz-dtb || make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-w" -j$(nproc) Image
 
     - name: Upload Kernel Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Kernel-Image
         path: arch/arm64/boot/
+        
