@@ -26,9 +26,10 @@ jobs:
         sed -i '3858s/.*/\/\/ bypassed/' drivers/mmc/host/sdhci-msm.c || true
         sed -i '3859s/.*/\/\/ bypassed/' drivers/mmc/host/sdhci-msm.c || true
         
-        # 2. Fix the clock debug trace issue
+        # 2. Fix the clock debug trace issue without disabling the whole subsystem
         sed -i 's/#include "trace.h"/\/\/ #include "trace.h"/g' drivers/clk/qcom/clk-debug.c || true
-        sed -i '18s/.*/\/\/ bypassed/' drivers/clk/qcom/clk-debug.c || true
+        sed -i 's/trace_clk_measure/\/\/ trace_clk_measure/g' drivers/clk/qcom/clk-debug.c || true
+        sed -i 's/trace_clk_state/\/\/ trace_clk_state/g' drivers/clk/qcom/clk-debug.c || true
 
     - name: Compile Kernel
       run: |
@@ -43,6 +44,9 @@ jobs:
             make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- defconfig
         fi
         
+        # Disable ONLY the ICE storage module that causes C struct errors
+        scripts/config --disable CONFIG_MMC_SDHCI_MSM_ICE
+        
         # Enable Bluetooth modules for NetHunter
         scripts/config --enable CONFIG_BT
         scripts/config --enable CONFIG_BT_RFCOMM
@@ -50,7 +54,7 @@ jobs:
         scripts/config --enable CONFIG_BT_HIDP
         scripts/config --enable CONFIG_BT_HCIBTUSB
         
-        # Compile with strict warnings disabled
+        # Compile
         make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
         make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-w -Wno-return-type" -j$(nproc) Image.gz-dtb || make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-w -Wno-return-type" -j$(nproc) Image
 
@@ -59,4 +63,3 @@ jobs:
       with:
         name: Kernel-Image
         path: arch/arm64/boot/
-        
