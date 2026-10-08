@@ -25,7 +25,7 @@ jobs:
         scripts/config --disable CONFIG_QRTR
         
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
-        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-Wno-error -Wno-format -Wno-format-extra-args" -j$(nproc)
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-Wno-error -Wno-format -Wno-format-extra-args" -j1
 
     - name: Upload Kernel Artifact
       uses: actions/upload-artifact@v4
