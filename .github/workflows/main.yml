@@ -18,10 +18,9 @@ jobs:
 
     - name: Compile Kernel
       run: |
-        # Create symlink for clang
         sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-12 100
         
-        # Try ruan defconfig options
+        # Select target defconfig
         if [ -f arch/arm64/configs/vendor/ruan_defconfig ]; then
             make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- vendor/ruan_defconfig
         elif [ -f arch/arm64/configs/ruan_defconfig ]; then
@@ -29,6 +28,10 @@ jobs:
         else
             make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- defconfig
         fi
+        
+        # Disable problematic clock debug modules
+        scripts/config --disable CONFIG_QCOM_CLK_RPM
+        scripts/config --disable CONFIG_COMMON_CLK_QCOM
         
         # Enable Bluetooth modules for NetHunter
         scripts/config --enable CONFIG_BT
