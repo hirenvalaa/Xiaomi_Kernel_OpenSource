@@ -6,25 +6,23 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+    - name: Checkout Repository
+      uses: actions/checkout@v3
 
-      - name: Set up Build Environment
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential bc bison flex libssl-dev libelf-dev libncurses5-dev git gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
+    - name: Set up Build Environment
+      run: |
+        sudo apt-get update -qq
+        DEBIAN_FRONTEND=noninteractive sudo apt-get install -y build-essential bc libncurses5-dev libssl-dev libelf-dev flex bison bison-doc libglib2.0-dev gcc-aarch64-linux-gnu
 
-      - name: Compile Kernel
-        run: |
-          echo "Starting kernel compilation..."
-          export ARCH=arm64
-          export CROSS_COMPILE=aarch64-linux-gnu-
-          make O=out arch/arm64/configs/vendor/ruan_consolidate_defconfig
-          make -j$(nproc) O=out
+    - name: Compile Kernel
+      run: |
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- ruan_consolidate_defconfig
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc)
 
-      - name: Upload Kernel Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: kernel-build
-          path: out/arch/arm64/boot/Image.gz
+    - name: Upload Kernel Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Image.gz-dtb
+        path: arch/arm64/boot/Image.gz-dtb
