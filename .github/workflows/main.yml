@@ -57,11 +57,15 @@ jobs:
         scripts/config --disable CONFIG_MMC_SDHCI_MSM_ICE
         
         # Enable Bluetooth modules for NetHunter
-        scripts/config --enable CONFIG_BT
-        scripts/config --enable CONFIG_BT_RFCOMM
-        scripts/config --enable CONFIG_BT_BNEP
-        scripts/config --enable CONFIG_BT_HIDP
-        scripts/config --enable CONFIG_BT_HCIBTUSB
+               scripts/config --enable CONFIG_BT
+               scripts/config --enable CONFIG_BT_RFCOMM
+               scripts/config --enable CONFIG_BT_BNEP
+               scripts/config --enable CONFIG_BT_HIDP
+               scripts/config --enable CONFIG_BT_HCIBTUSB
+               scripts/config --enable CONFIG_BT_HCIVHCI
+               scripts/config --enable CONFIG_BT_HCIUART
+               scripts/config --enable CONFIG_BT_HCIUART_H4
+
         
         # Compile with strict warnings disabled and LLVM linker
         make ARCH=arm64 CC=clang LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
