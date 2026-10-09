@@ -26,7 +26,7 @@ jobs:
         sed -i '3858s/.*/\/\/ bypassed/' drivers/mmc/host/sdhci-msm.c || true
         sed -i '3859s/.*/\/\/ bypassed/' drivers/mmc/host/sdhci-msm.c || true
         
-        # 2. Fix clk-debug.c by creating a dummy trace.h header (No syntax errors!)
+        # 2. Fix clk-debug.c by creating a dummy trace.h header
         cat << 'EOF' > drivers/clk/qcom/trace.h
         #ifndef __QCOM_CLK_TRACE_H__
         #define __QCOM_CLK_TRACE_H__
@@ -34,18 +34,22 @@ jobs:
         #define trace_clk_state(...)
         #endif
         EOF
+        
+        # 3. Bypass the missing panic reboot reason function
+        sed -i '1i #define update_panic_reboot_reason(...)' drivers/power/reset/msm-poweroff.c || true
 
     - name: Compile Kernel
       run: |
         sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-12 100
+        sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-12 100
         
         # Select target defconfig
         if [ -f arch/arm64/configs/vendor/ruan_defconfig ]; then
-            make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- vendor/ruan_defconfig
+            make ARCH=arm64 CC=clang LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- vendor/ruan_defconfig
         elif [ -f arch/arm64/configs/ruan_defconfig ]; then
-            make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- ruan_defconfig
+            make ARCH=arm64 CC=clang LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- ruan_defconfig
         else
-            make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- defconfig
+            make ARCH=arm64 CC=clang LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- defconfig
         fi
         
         # Fix missing qcom_scm Linker Error
@@ -59,13 +63,12 @@ jobs:
         scripts/config --enable CONFIG_BT_HIDP
         scripts/config --enable CONFIG_BT_HCIBTUSB
         
-        # Compile with strict warnings disabled
-        make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
-        make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-w -Wno-return-type" -j$(nproc) Image.gz-dtb || make ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-w -Wno-return-type" -j$(nproc) Image
+        # Compile with strict warnings disabled and LLVM linker
+        make ARCH=arm64 CC=clang LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
+        make ARCH=arm64 CC=clang LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-w -Wno-return-type" -j$(nproc) Image.gz-dtb || make ARCH=arm64 CC=clang LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- WERROR=0 KCFLAGS="-w -Wno-return-type" -j$(nproc) Image
 
     - name: Upload Kernel Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Kernel-Image
         path: arch/arm64/boot/
-        
