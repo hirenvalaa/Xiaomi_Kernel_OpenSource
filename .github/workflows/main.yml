@@ -26,10 +26,14 @@ jobs:
         sed -i '3858s/.*/\/\/ bypassed/' drivers/mmc/host/sdhci-msm.c || true
         sed -i '3859s/.*/\/\/ bypassed/' drivers/mmc/host/sdhci-msm.c || true
         
-        # 2. Fix the clk-debug.c trace issue completely
-        sed -i 's/#include "trace.h"/\/\/ #include "trace.h"/g' drivers/clk/qcom/clk-debug.c || true
-        sed -i '/trace_clk_measure/d' drivers/clk/qcom/clk-debug.c || true
-        sed -i '/trace_clk_state/d' drivers/clk/qcom/clk-debug.c || true
+        # 2. Fix clk-debug.c by creating a dummy trace.h header (No syntax errors!)
+        cat << 'EOF' > drivers/clk/qcom/trace.h
+        #ifndef __QCOM_CLK_TRACE_H__
+        #define __QCOM_CLK_TRACE_H__
+        #define trace_clk_measure(...)
+        #define trace_clk_state(...)
+        #endif
+        EOF
 
     - name: Compile Kernel
       run: |
